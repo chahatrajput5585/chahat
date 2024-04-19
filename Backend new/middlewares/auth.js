@@ -1,18 +1,16 @@
-import JWT from "jsonwebtoken";
+import { User } from "../models/userSchema.js";
+import { catchAsyncErrors } from "./catchAsyncError.js";
+import ErrorHandler from "./error.js";
+import jwt from "jsonwebtoken";
 
-const isAuthenticated = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
-    next("Auth Failed");
+export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return next(new ErrorHandler("User Not Authorized", 401));
   }
-  const token = authHeader.split(" ")[1];
-  try {
-    const payload = JWT.verify(token, "bO7ElGE70z2gNaJvh2dckVKvKZw");
-    req.user = { id: payload.id };
-    next();
-  } catch (error) {
-    next("Auth Failed");
-  }
-};
+  const decoded = jwt.verify(token, "bO7ElGE70z2gNaJvh2dckVKvKZw");
 
-export default isAuthenticated;
+  req.user = await User.findById(decoded.id);
+
+  next();
+});
