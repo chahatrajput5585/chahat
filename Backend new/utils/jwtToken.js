@@ -1,33 +1,35 @@
 import jwt from "jsonwebtoken";
 
 export const sendToken = (user, statusCode, res, message) => {
-  console.log("User",user);
-  console.log(user);
-  const payload = {user:user.name,email:user.email,role:user.role}
+  const payload = { user: user.name, email: user.email, role: user.role };
 
-  const token = jwt.sign(payload, "bO7ElGE70z2gNaJvh2dckVKvKZw", {
-    expiresIn: '1h'
-  });
+  try {
+    const token = jwt.sign(payload, "bO7ElGE70z2gNaJvh2dckVKvKZw", {
+      expiresIn: '1h'
+    });
 
- 
-  // const options = {
-  //   expires: new Date(
-  //     Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-  //   ),
-  //   httpOnly: true, // Set httpOnly to true
-  // };
-
-  res.status(statusCode).cookie("token", token).json({
-    success: true,
-    message,
-    role : user.role,
-    token,
-  });
+    res.status(statusCode).cookie("token", token).json({
+      success: true,
+      message,
+      role: user.role,
+      token,
+    });
+  } catch (error) {
+    console.error("Error while signing token:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 };
 
-export const decryptToken = (token) =>{
-  //TODO: try catch. 
-  const payload = jwt.verify(token,"bO7ElGE70z2gNaJvh2dckVKvKZw");
-  return payload;
-// return payload;
-}
+export const decryptToken = (token) => {
+  try {
+    const payload = jwt.verify(token, "bO7ElGE70z2gNaJvh2dckVKvKZw");
+    return payload;
+  } catch (error) {
+    console.error("Error while decrypting token:", error);
+    return null; // Return null or handle the error appropriately
+  }
+};
+
