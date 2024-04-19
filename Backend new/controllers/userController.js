@@ -82,16 +82,11 @@ export const getUser = catchAsyncErrors(async (req, res, next) => {
     }
     
     // If user is found, send user details in the response
-    res.json({
-      success: true,
-      data: { ...user },
-    });
-  } catch (error) {
-    // If an error occurs during user retrieval or processing, handle it
-    console.log("Error====>", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+  res.status(200).json({
+    success: true,
+    data:{...user},
+  });
+  }catch(error){
+    console.log("Eror====>",error);
+  }  
 });
