@@ -4,7 +4,7 @@ export const sendToken = (user, res, statusCode = 200, message = "Token generate
   const payload = { user: user.name, email: user.email, role: user.role };
 
   try {
-    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign(payload, "bO7ElGE70z2gNaJvh2dckVKvKZw", {
       expiresIn: '1h'
     });
 
@@ -25,7 +25,7 @@ export const sendToken = (user, res, statusCode = 200, message = "Token generate
 
 export const decryptToken = (token) => {
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const payload = jwt.verify(token, "bO7ElGE70z2gNaJvh2dckVKvKZw");
     return payload;
   } catch (error) {
     console.error("Error while decrypting token:", error);
