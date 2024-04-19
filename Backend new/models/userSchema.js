@@ -53,7 +53,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 //GENERATING A JWT TOKEN WHEN A USER REGISTERS OR LOGINS, IT DEPENDS ON OUR CODE THAT WHEN DO WE NEED TO GENERATE THE JWT TOKEN WHEN THE USER LOGIN OR REGISTER OR FOR BOTH. 
 userSchema.methods.getJWTToken = function () {
   return jwt.sign({ id: this._id }, "bO7ElGE70z2gNaJvh2dckVKvKZw", {
-    expiresIn: '7d',
+    expiresIn: "7d",
   });
 };
 
