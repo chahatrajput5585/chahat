@@ -24,9 +24,9 @@ export const register = catchAsyncErrors(async (req, res, next) => {
 
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { email, password, role } = req.body;
-  console.log(email,password,role);
+  console.log(email, password, role);
   if (!email || !password || !role) {
-    return next(new ErrorHandler("Please provide email ,password and role."));
+    return next(new ErrorHandler("Please provide email, password, and role."));
   }
   const user = await User.findOne({ email }).select("+password");
   console.log(user);
@@ -34,7 +34,7 @@ export const login = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid Email Or Password.", 400));
   }
   const isPasswordMatched = await user.comparePassword(password);
-  console.log("is password matched",isPasswordMatched);
+  console.log("is password matched", isPasswordMatched);
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid Email Or Password.", 400));
   }
@@ -47,46 +47,44 @@ export const login = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const logout = catchAsyncErrors(async (req, res, next) => {
-  res
-    .status(201)
-    .cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    })
-    .json({
-      success: true,
-      message: "Logged Out Successfully.",
-    });
+  try {
+    res
+      .status(201)
+      .cookie("token", "", {
+        httpOnly: true,
+        expires: new Date(Date.now()),
+      })
+      .json({
+        success: true,
+        message: "Logged Out Successfully.",
+      });
+  } catch (error) {
+    return next(new ErrorHandler("Logout failed", 500));
+  }
 });
-
 
 export const getUser = catchAsyncErrors(async (req, res, next) => {
   try {
-    // Verify user and then send details to the response.
+    // Decrypt the token asynchronously
     const token = req.headers.authorization || req.cookies.token;
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "User not authorized",
-      });
+      return next(new ErrorHandler("User not authorized", 401));
     }
 
-    const user = await decryptToken(token); // Assuming decryptToken returns a Promise
+    const user = await decryptToken(token);
+
     if (!user) {
-      // If user is not found or authentication fails, handle appropriately
-      return res.status(401).json({
-        success: false,
-        message: "User not authorized",
-      });
+      return next(new ErrorHandler("Invalid token", 401));
     }
-    
-    // If user is found, send user details in the response
-  res.status(200).json({
-    success: true,
-    data:{...user},
-  });
-  }catch(error){
-    console.log("Eror====>",error);
-  }  
+
+    res.status(200).json({
+      success: true,
+      data: { ...user },
+    });
+  } catch (error) {
+    console.log("Error====>", error);
+    return next(new ErrorHandler("Internal server error", 500));
+  }
 });
+
