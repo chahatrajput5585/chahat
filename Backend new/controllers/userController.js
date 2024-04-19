@@ -82,7 +82,7 @@ export const getUser = catchAsyncErrors(async (req, res, next) => {
     }
     
     // If user is found, send user details in the response
-    res.status(200).json({
+    res.json({
       success: true,
       data: { ...user },
     });
