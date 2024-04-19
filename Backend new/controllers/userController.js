@@ -63,7 +63,16 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 export const getUser = catchAsyncErrors(async (req, res, next) => {
   try {
     // Verify user and then send details to the response.
-    const user = await decryptToken(req.cookies.token); // Assuming decryptToken returns a Promise
+    const token = req.headers.authorization || req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authorized",
+      });
+    }
+
+    const user = await decryptToken(token); // Assuming decryptToken returns a Promise
     if (!user) {
       // If user is not found or authentication fails, handle appropriately
       return res.status(401).json({
