@@ -60,15 +60,29 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-export const getUser = catchAsyncErrors((req, res, next) => {
-  try{
-    // verify user and then send details to the res.
-   const user =  decryptToken(req.cookies.token);
-   res.status(200).json({
-    success: true,
-    data:{...user},
-  });
-  }catch(error){
-    console.log("Eror====>",error);
-  }  
+export const getUser = catchAsyncErrors(async (req, res, next) => {
+  try {
+    // Verify user and then send details to the response.
+    const user = await decryptToken(req.cookies.token); // Assuming decryptToken returns a Promise
+    if (!user) {
+      // If user is not found or authentication fails, handle appropriately
+      return res.status(401).json({
+        success: false,
+        message: "User not authorized",
+      });
+    }
+    
+    // If user is found, send user details in the response
+    res.status(200).json({
+      success: true,
+      data: { ...user },
+    });
+  } catch (error) {
+    // If an error occurs during user retrieval or processing, handle it
+    console.log("Error====>", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 });
